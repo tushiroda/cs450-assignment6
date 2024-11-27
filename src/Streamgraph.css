@@ -1,0 +1,12 @@
+.streamgraph{
+  padding-top: 15px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.graphContainer {
+  outline: auto;
+  width: 700px;
+  margin: auto;
+}

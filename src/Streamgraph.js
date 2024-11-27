@@ -89,15 +89,76 @@ class Streamgraph extends Component {
   };
 
   componentDidMount() {
-    console.log(this.state.data);
+    this.setState({ ...this.state });
   }
 
   componentDidUpdate() {
-    var data = 0;
+    var data = this.state.data;
+    console.log(data);
+
+    var margin = { top: 30, bot: 30, left: 40, right: 40 };
+    var w = 700 - margin.left - margin.right;
+    var h = 500 - margin.top - margin.bot;
+
+    var container = d3
+      .select(".graphContainer")
+      .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bot)
+      .select(".g1")
+      .attr("transform", `translate(${margin.left}, ${0})`);
+
+    var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMa-3.1"];
+
+    // x-axis
+    var x_data = data.map((d) => new Date(d.Date));
+    const x_scale = d3
+      .scaleTime()
+      .domain([d3.min(x_data), d3.max(x_data)])
+      .range([margin.left, w]);
+    container
+      .selectAll(".x_axis_g")
+      .data([0])
+      .join("g")
+      .attr("class", "x_axis_g")
+      .attr("transform", `translate(0, ${h + 5})`)
+      .call(d3.axisBottom(x_scale))
+      .selectAll("text")
+      .style("text-anchor", "start")
+      .attr("dx", "5px")
+      .attr("dy", "5px")
+      .attr("transform", "rotate(45)");
+
+    // y-axis
+    var y_data = data.map((d) => {
+      let { Date, ...modelNames } = d;
+      return modelNames;
+    });
+    const y_scale = d3.scaleLinear().domain([-200, 200]).range(h, 0);
+    container
+      .selectAll(".y_axis_g")
+      .data([0])
+      .join("g")
+      .attr("class", "y_axis_g")
+      .attr("transform", `translate(0, ${h + 5})`)
+      .call(d3.axisBottom(x_scale))
+      .selectAll("text")
+      .style("text-anchor", "start")
+      .attr("dx", "5px")
+      .attr("dy", "5px")
+      .attr("transform", "rotate(45)");
+    
+    // data
+    var stacked = d3.stack().offset(d3.stackOffsetSilhouette).keys(keys)(data);
   }
 
   render() {
-    return <div></div>;
+    return (
+      <div className="streamgraph">
+        <svg className="graphContainer">
+          <g className="g1"></g>
+        </svg>
+      </div>
+    );
   }
 }
 
