@@ -94,10 +94,9 @@ class Streamgraph extends Component {
 
   componentDidUpdate() {
     var data = this.state.data;
-    console.log(data);
 
     var margin = { top: 30, bot: 30, left: 40, right: 40 };
-    var w = 700 - margin.left - margin.right;
+    var w = 600 - margin.left - margin.right;
     var h = 500 - margin.top - margin.bot;
 
     var container = d3
@@ -107,38 +106,71 @@ class Streamgraph extends Component {
       .select(".g1")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMa-3.1"];
-
     // x-axis
-    var x_data = data.map((d) => d3.timeMonth.offset(new Date(d.Date), 1));
+    var x_data = data.map((d) => d3.timeMonth.offset(new Date(d.Date), 0));
+    data.forEach(function (d) {
+      d.Date = d3.timeMonth.offset(new Date(d.Date), 0);
+    });
     const x_scale = d3
       .scaleUtc()
       .domain([d3.min(x_data), d3.max(x_data)])
       .range([margin.left, w])
       .nice();
+
+    // TODO
+    var tickvals = d3.axisBottom(x_scale).scale().ticks();
+    console.log("before", tickvals);
+    tickvals = tickvals.map((d) => d3.timeMonth.offset(new Date(d), 1));
+    console.log(tickvals);
+
     container
       .selectAll(".x_axis_g")
       .data([0])
       .join("g")
       .attr("class", "x_axis_g")
-      .attr("transform", `translate(0, ${h})`)
+      .attr("transform", `translate(0, ${h + 5})`)
       .call(d3.axisBottom(x_scale).tickFormat(d3.timeFormat("%b")));
 
-    // y-axis
-    var y_data = data.map((d) => {
-      let { Date, ...modelNames } = d;
-      return modelNames;
-    });
-    const y_scale = d3.scaleLinear().domain([-200, 200]).range([h, 0]);
+    const y_scale = d3.scaleLinear().domain([-300, 300]).range([h, 0]);
     container
       .selectAll(".y_axis_g")
       .data([0])
       .join("g")
       .attr("class", "y_axis_g")
+      .attr("transform", `translate(${margin.left - 5}, 0)`)
       .call(d3.axisLeft(y_scale));
 
     // data
+    var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMA-3.1"];
     var stacked = d3.stack().offset(d3.stackOffsetSilhouette).keys(keys)(data);
+    var color = d3
+      .scaleOrdinal()
+      .domain(keys)
+      .range(["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]);
+
+    const area = d3
+      .area()
+      .curve(d3.curveNatural)
+      .x(function (d) {
+        return x_scale(d.data.Date);
+      })
+      .y0(function (d) {
+        return y_scale(d[0]);
+      })
+      .y1(function (d) {
+        return y_scale(d[1]);
+      });
+
+    container
+      .selectAll("mylayers")
+      .data(stacked)
+      .enter()
+      .append("path")
+      .attr("class", "myArea")
+      .style("fill", function (d) {
+        return color(d.key);
+      })
+      .attr("d", area);
   }
 
   render() {
