@@ -105,48 +105,38 @@ class Streamgraph extends Component {
       .attr("width", w + margin.left + margin.right)
       .attr("height", h + margin.top + margin.bot)
       .select(".g1")
-      .attr("transform", `translate(${margin.left}, ${0})`);
+      .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMa-3.1"];
 
     // x-axis
-    var x_data = data.map((d) => new Date(d.Date));
+    var x_data = data.map((d) => d3.timeMonth.offset(new Date(d.Date), 1));
     const x_scale = d3
-      .scaleTime()
+      .scaleUtc()
       .domain([d3.min(x_data), d3.max(x_data)])
-      .range([margin.left, w]);
+      .range([margin.left, w])
+      .nice();
     container
       .selectAll(".x_axis_g")
       .data([0])
       .join("g")
       .attr("class", "x_axis_g")
-      .attr("transform", `translate(0, ${h + 5})`)
-      .call(d3.axisBottom(x_scale))
-      .selectAll("text")
-      .style("text-anchor", "start")
-      .attr("dx", "5px")
-      .attr("dy", "5px")
-      .attr("transform", "rotate(45)");
+      .attr("transform", `translate(0, ${h})`)
+      .call(d3.axisBottom(x_scale).tickFormat(d3.timeFormat("%b")));
 
     // y-axis
     var y_data = data.map((d) => {
       let { Date, ...modelNames } = d;
       return modelNames;
     });
-    const y_scale = d3.scaleLinear().domain([-200, 200]).range(h, 0);
+    const y_scale = d3.scaleLinear().domain([-200, 200]).range([h, 0]);
     container
       .selectAll(".y_axis_g")
       .data([0])
       .join("g")
       .attr("class", "y_axis_g")
-      .attr("transform", `translate(0, ${h + 5})`)
-      .call(d3.axisBottom(x_scale))
-      .selectAll("text")
-      .style("text-anchor", "start")
-      .attr("dx", "5px")
-      .attr("dy", "5px")
-      .attr("transform", "rotate(45)");
-    
+      .call(d3.axisLeft(y_scale));
+
     // data
     var stacked = d3.stack().offset(d3.stackOffsetSilhouette).keys(keys)(data);
   }
