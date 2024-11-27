@@ -118,10 +118,10 @@ class Streamgraph extends Component {
       .nice();
 
     // TODO
-    var tickvals = d3.axisBottom(x_scale).scale().ticks();
-    console.log("before", tickvals);
-    tickvals = tickvals.map((d) => d3.timeMonth.offset(new Date(d), 1));
-    console.log(tickvals);
+    // var tickvals = d3.axisBottom(x_scale).scale().ticks();
+    // console.log("before", tickvals);
+    // tickvals = tickvals.map((d) => d3.timeMonth.offset(new Date(d), 1));
+    // console.log(tickvals);
 
     container
       .selectAll(".x_axis_g")
@@ -132,13 +132,13 @@ class Streamgraph extends Component {
       .call(d3.axisBottom(x_scale).tickFormat(d3.timeFormat("%b")));
 
     const y_scale = d3.scaleLinear().domain([-300, 300]).range([h, 0]);
-    container
-      .selectAll(".y_axis_g")
-      .data([0])
-      .join("g")
-      .attr("class", "y_axis_g")
-      .attr("transform", `translate(${margin.left - 5}, 0)`)
-      .call(d3.axisLeft(y_scale));
+    // container
+    //   .selectAll(".y_axis_g")
+    //   .data([0])
+    //   .join("g")
+    //   .attr("class", "y_axis_g")
+    //   .attr("transform", `translate(${margin.left - 5}, 0)`)
+    //   .call(d3.axisLeft(y_scale));
 
     // data
     var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMA-3.1"];
@@ -179,6 +179,28 @@ class Streamgraph extends Component {
         <svg className="graphContainer">
           <g className="g1"></g>
         </svg>
+        <div className="legend">
+          <div className="legitem">
+            <div className="box" style={{ backgroundColor: "#e41a1c" }}></div>
+            GPT-4
+          </div>
+          <div className="legitem">
+            <div className="box" style={{ backgroundColor: "#377eb8" }}></div>
+            Gemini
+          </div>
+          <div className="legitem">
+            <div className="box" style={{ backgroundColor: "#4daf4a" }}></div>
+            PaLM-2
+          </div>
+          <div className="legitem">
+            <div className="box" style={{ backgroundColor: "#984ea3" }}></div>
+            Claude
+          </div>
+          <div className="legitem">
+            <div className="box" style={{ backgroundColor: "#ff7f00" }}></div>
+            LLaMA-3.1
+          </div>
+        </div>
       </div>
     );
   }
