@@ -107,21 +107,17 @@ class Streamgraph extends Component {
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // x-axis
-    var x_data = data.map((d) => d3.timeMonth.offset(new Date(d.Date), 0));
     data.forEach(function (d) {
-      d.Date = d3.timeMonth.offset(new Date(d.Date), 0);
+      d.Date = d3.timeDay.offset(new Date(d.Date), 1);
     });
+    var x_data = data.map((d) => d.Date);
+    console.log(x_data);
+
     const x_scale = d3
-      .scaleUtc()
-      .domain([d3.min(x_data), d3.max(x_data)])
+      .scaleTime()
+      .domain([d3.min(x_data), d3.timeMonth.offset(d3.max(x_data), -1)])
       .range([margin.left, w])
       .nice();
-
-    // TODO
-    // var tickvals = d3.axisBottom(x_scale).scale().ticks();
-    // console.log("before", tickvals);
-    // tickvals = tickvals.map((d) => d3.timeMonth.offset(new Date(d), 1));
-    // console.log(tickvals);
 
     container
       .selectAll(".x_axis_g")
@@ -140,7 +136,7 @@ class Streamgraph extends Component {
     //   .attr("transform", `translate(${margin.left - 5}, 0)`)
     //   .call(d3.axisLeft(y_scale));
 
-    // data
+    // streamdata
     var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMA-3.1"];
     var stacked = d3.stack().offset(d3.stackOffsetSilhouette).keys(keys)(data);
     var color = d3
@@ -171,6 +167,8 @@ class Streamgraph extends Component {
         return color(d.key);
       })
       .attr("d", area);
+    
+    // tooltip
   }
 
   render() {
@@ -181,11 +179,11 @@ class Streamgraph extends Component {
         </svg>
         <div className="legend">
           <div className="legitem">
-            <div className="box" style={{ backgroundColor: "#e41a1c" }}></div>
+            <div className="box" style={{ backgroundColor: "#ff7f00" }}></div>
             GPT-4
           </div>
           <div className="legitem">
-            <div className="box" style={{ backgroundColor: "#377eb8" }}></div>
+            <div className="box" style={{ backgroundColor: "#984ea3" }}></div>
             Gemini
           </div>
           <div className="legitem">
@@ -193,11 +191,11 @@ class Streamgraph extends Component {
             PaLM-2
           </div>
           <div className="legitem">
-            <div className="box" style={{ backgroundColor: "#984ea3" }}></div>
+            <div className="box" style={{ backgroundColor: "#377eb8" }}></div>
             Claude
           </div>
           <div className="legitem">
-            <div className="box" style={{ backgroundColor: "#ff7f00" }}></div>
+            <div className="box" style={{ backgroundColor: "#e41a1c" }}></div>
             LLaMA-3.1
           </div>
         </div>
