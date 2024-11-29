@@ -126,7 +126,7 @@ class Streamgraph extends Component {
       .attr("transform", `translate(0, ${h + 5})`)
       .call(d3.axisBottom(x_scale).tickFormat(d3.timeFormat("%b")));
 
-    const y_scale = d3.scaleLinear().domain([-300, 300]).range([550, 150]);
+    const y_scale = d3.scaleLinear().domain([-300, 300]).range([585, 135]);
 
     // streamdata
     var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMA-3.1"];
@@ -201,6 +201,17 @@ class Streamgraph extends Component {
           .call(d3.axisBottom(tx_scale).tickFormat(d3.timeFormat("%b")));
 
         // tdata
+        tooltip
+          .selectAll("rect")
+          .data(data)
+          .join("rect")
+          .attr("x", (d) => tx_scale(d.Date))
+          .attr("y", (d) => ty_scale(d[k]))
+          .attr("transform", `translate(${ttmargin.left + 2}, ${ttmargin.top})`)
+          .attr("width", tx_scale.bandwidth() - 4)
+          .attr("height", (d) => ty_scale(0) - ty_scale(d[k]))
+          .transition()
+          .attr("fill", color(k));
       })
       .on("mousemove", function (event) {
         tooltip
@@ -221,11 +232,11 @@ class Streamgraph extends Component {
         <div className="legend">
           <div className="legitem">
             <div className="box" style={{ backgroundColor: "#ff7f00" }}></div>
-            GPT-4
+            LLaMA-3.1
           </div>
           <div className="legitem">
             <div className="box" style={{ backgroundColor: "#984ea3" }}></div>
-            Gemini
+            Claude
           </div>
           <div className="legitem">
             <div className="box" style={{ backgroundColor: "#4daf4a" }}></div>
@@ -233,11 +244,11 @@ class Streamgraph extends Component {
           </div>
           <div className="legitem">
             <div className="box" style={{ backgroundColor: "#377eb8" }}></div>
-            Claude
+            Gemini
           </div>
           <div className="legitem">
             <div className="box" style={{ backgroundColor: "#e41a1c" }}></div>
-            LLaMA-3.1
+            GPT-4
           </div>
         </div>
       </div>
