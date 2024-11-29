@@ -111,7 +111,6 @@ class Streamgraph extends Component {
       d.Date = d3.timeDay.offset(new Date(d.Date), 1);
     });
     var x_data = data.map((d) => d.Date);
-    console.log(x_data);
 
     const x_scale = d3
       .scaleTime()
@@ -127,18 +126,11 @@ class Streamgraph extends Component {
       .attr("transform", `translate(0, ${h + 5})`)
       .call(d3.axisBottom(x_scale).tickFormat(d3.timeFormat("%b")));
 
-    const y_scale = d3.scaleLinear().domain([-300, 300]).range([h, 0]);
-    // container
-    //   .selectAll(".y_axis_g")
-    //   .data([0])
-    //   .join("g")
-    //   .attr("class", "y_axis_g")
-    //   .attr("transform", `translate(${margin.left - 5}, 0)`)
-    //   .call(d3.axisLeft(y_scale));
+    const y_scale = d3.scaleLinear().domain([-300, 300]).range([550, 150]);
 
     // streamdata
     var keys = ["GPT-4", "Gemini", "PaLM-2", "Claude", "LLaMA-3.1"];
-    var stacked = d3.stack().offset(d3.stackOffsetSilhouette).keys(keys)(data);
+    var stacked = d3.stack().offset(d3.stackOffsetWiggle).keys(keys)(data);
     var color = d3
       .scaleOrdinal()
       .domain(keys)
@@ -147,15 +139,9 @@ class Streamgraph extends Component {
     const area = d3
       .area()
       .curve(d3.curveNatural)
-      .x(function (d) {
-        return x_scale(d.data.Date);
-      })
-      .y0(function (d) {
-        return y_scale(d[0]);
-      })
-      .y1(function (d) {
-        return y_scale(d[1]);
-      });
+      .x((d) => x_scale(d.data.Date))
+      .y0((d) => y_scale(d[0]))
+      .y1((d) => y_scale(d[1]));
 
     container
       .selectAll("mylayers")
@@ -167,8 +153,63 @@ class Streamgraph extends Component {
         return color(d.key);
       })
       .attr("d", area);
-    
+
     // tooltip
+    const tooltip = d3
+      .select("body")
+      .append("svg")
+      .attr("class", "tooltip")
+      .attr("width", 350)
+      .attr("height", 200)
+      .style("position", "absolute")
+      .style("visibility", "hidden");
+    const ttmargin = { top: 20, left: 50 };
+    const tth = 150;
+    const ttw = 275;
+
+    d3.selectAll(".myArea")
+      .on("mouseover", function (event, d) {
+        tooltip.style("visibility", "visible");
+
+        // ty-axis
+        var k = d.key;
+        var y_data = data.map((obj) => obj[k]);
+        console.log(y_data);
+        const ty_scale = d3
+          .scaleLinear()
+          .domain([0, d3.max(y_data)])
+          .range([tth, 0]);
+        tooltip
+          .selectAll(".ty_axis_g")
+          .data([0])
+          .join("g")
+          .attr("class", "ty_axis_g")
+          .attr("transform", `translate(${ttmargin.left}, ${ttmargin.top})`)
+          .call(d3.axisLeft(ty_scale));
+
+        // tx-axis
+        const tx_scale = d3.scaleBand().domain(x_data).range([0, ttw]);
+        tooltip
+          .selectAll(".tx_axis_g")
+          .data([0])
+          .join("g")
+          .attr("class", "tx_axis_g")
+          .attr(
+            "transform",
+            `translate(${ttmargin.left}, ${tth + ttmargin.top})`
+          )
+          .call(d3.axisBottom(tx_scale).tickFormat(d3.timeFormat("%b")));
+
+        // tdata
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("left", event.pageX - 175 + "px")
+          .style("top", event.pageY + 25 + "px");
+      })
+      .on("mouseout", function () {
+        tooltip.style("visibility", "hidden");
+      });
   }
 
   render() {

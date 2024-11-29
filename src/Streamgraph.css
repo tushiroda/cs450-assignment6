@@ -1,4 +1,4 @@
-.streamgraph{
+.streamgraph {
   padding-top: 15px;
   margin: auto;
   display: flex;
@@ -6,20 +6,24 @@
   justify-content: center;
 }
 
-.legend{
+.legend {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
 }
 
-.legitem{
+.legitem {
   display: flex;
   align-items: center;
 }
 
-.box{
+.box {
   width: 30px;
   height: 30px;
   margin-right: 5px;
+}
+
+.tooltip {
+  background-color: aliceblue;
 }
