@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import FileUpload from "./FileUpload";
-import Streamgraph from "./Streamgraph";
+import Visualization from "./Visualization";
 
 class App extends Component {
   constructor(props) {
@@ -19,7 +19,7 @@ class App extends Component {
       <div>
         <FileUpload set_data={this.set_data}></FileUpload>
         <div className="parent">
-          <Streamgraph csv_data={this.state.data}></Streamgraph>
+          <Visualization csv_data={this.state.data}></Visualization>
         </div>
       </div>
     );
